@@ -61,7 +61,6 @@
 @(define ttred     (make-ttcolor-style "red"))
 @(define ttgreen   (make-ttcolor-style "green"))
 @(define optional "evaluated, optional, default: ")
-@(define (nws) (roman ", " (nbrl normalize-whitespace "normalized"))) 
 @(define opt-proc "optional, default: ")
 @(define (excn)
          (seclink "exn-model" #:doc '(lib "scribblings/reference/reference.scrbl") "exception"))
@@ -109,9 +108,9 @@ comparison of computed results with expected ones.
  (test #,(roman " ")   name            #,(roman "evaluated")
            (expr ...)      #,(roman "not evaluated")
            expected-values #,(roman "evaluated")
-  #:output expected-output #,(roman optional (nbr #f) (nws))
-  #:error  expected-error  #,(roman optional (nbr #f) (nws))
-  #:exn    exn-expected?   #,(roman optional (nbr (and expected-error #t)))
+  #:output expected-output #,(roman optional (nbr #f))
+  #:error  expected-error  #,(roman optional (nbr #f))
+  #:exn    exn-expected?   #,(roman optional (elemref "default-exn" "see below"))
   #:time   time-limit      #,(roman optional (nbr (test-time)))
   #:cg?    cg?             #,(roman optional (nbr #f))
   #:check  check-procedure #,(roman optional (nbr test-check)))
@@ -154,13 +153,14 @@ are checked to satisfy their contracts.
   ((nbr expected-values)
    @roman{List of the expected values of @(test-block), possibly empty.@(lb)
          @nbr[#f] is short for @(nbr (list (void))).
-   Computed and expected values are compared with each other with procedure @nbr[test-compare?].})
-  ((list (nbr expected-output) "," (lb) (nbr expected-error))
+   When @nbr[test-check] is given for argument @nbr[check-procedure],
+   computed and expected values are compared with each other with procedure @nbr[test-compare?].})
+  ((list (nbr expected-output) (lb) (nbr expected-error))
    @roman{Output expected on @(racket current-output-port) cq @racket[current-error-port].
    @nb{These arguments} are @nbrl[normalize-whitespace]{normalized for white@(-?)space}.
    The computed output and error produced by the test
    will be normalized too before comparison with the expected output and error.})
-  ((nbr exn-expected?)
+  ((nbr exn-expected?) (elemtag "default-exn" 
    @roman{@nbr[#f] indicates that no @(excn) is expected.
    Every other value indicates that an @(excn) is expected.
    If the @nbrl[normalize-whitespace]{normalized} @racket[expected-error] is a non-empty string
@@ -169,7 +169,7 @@ are checked to satisfy their contracts.
    to the @racket[current-error-port] without raising an @(excn),
    in which case @nbr[#f] is the appropriate value for this argument.
    When the test is expected to raise an @(excn) without producing non-white error output,
-   the appropriate value is @nbr[#t].})
+   the appropriate value is @nbr[#t].}))
   ((nbr time-limit)
    @roman{Imposes a time limit on the test in milliseconds.
    Time spent on garbage collection is included.
@@ -185,9 +185,9 @@ are checked to satisfy their contracts.
    @roman{Procedure that is assumed to check the results of a test.
           @nb{The default is} @nbr[test-check].
           @nb{It is called} by procedure @nbr[test-report] after running a test.
-          Section ‘@secref["Make a check procedure"]’
+          Section ‘@secref["Make check procedure"]’
           shows two examples of how to prepare your own @nbr[check-procedure].}))
- #:sep (hspace 3)
+ #:sep (hspace 1)
  #:row-properties '(top top top top top)]
 
 When tests are @nbrl[test-enable "enabled"] the test is saved for procedure @(nbr test-report).
@@ -403,14 +403,14 @@ is caught and reported as error with the @nbrl[exn-message]{message}:
 (test 32 ((p 1) (p)) '(1))
 (test 33 (      (p)) '(0))
 (code:comment " ")
-(code:comment #,(elemtag "test 34" (black "Cleanup a tread initiated by the test.")))
+(code:comment #,(elemtag "test 34" (black "Cleanup a thread initiated by the test.")))
 (code:comment " ")
 (test 34
  ((set! thd (thread (λ () (let loop ((n 0)) (loop (add1 n))))))
   (sleep 0.01)) #f)
 (define thd #f)
 (code:comment " ")
-(code:comment #,(black "Check that the thread of "
+(code:comment #,(black "Check that the thread ininitated by "
                        (elemref "test 34" "test 34")
                        " has been killed."))
 (code:comment " ")
@@ -456,7 +456,7 @@ the arguments are evaluated in the order as they appear in the call,
 argument @nbr[thunk] included.
 Therefore syntax errors in this argument are not delayed to execution time.
 Procedure @nbr[test-report] cannot show the source location of tests made with @nbr[test*].
-Same as:
+In all other respects same as:
 
 @(inset (racketblock0
 (test name
@@ -473,7 +473,7 @@ Same as:
 
 Runs all gathered @nbrl[test "tests"] and reports details about all failing tests on the
 @racket[current-output-port]. The list of gathered tests is cleared.
-In order to show source information the following example is read from a separate file.
+In order to show source information the follow@(-?)ing example is read from a separate file.
 A copy of the imported module is included.
 
 @Interaction[
@@ -533,9 +533,7 @@ If @nbr[on/off] is not @nbr[#f] it is coerced to @nbr[#t].
 Initially tests are enabled.@(lb)
 When tests are disabled gathering of tests is ignored until enabled again.}
 
-@defparam[test-time
-          time-limit (or/c #f (>/c 0))
-          #:value #f]{
+@defparam[test-time time-limit (or/c #f (>/c 0)) #:value #f]{
 Specifies the default value for the @nbr[time-limit] argument of macro @nbr[test].
 The initial value is @nbr[#f], indicating that no time limit is imposed.
 A positive real number specifies a time limit in milliseconds.
@@ -737,7 +735,7 @@ They are called by procedure @nbr[test-report].
 The thunk of example 3 is called outside the continuation barrier imposed by @(nbr let/ec).
 @nb{In example 4} @nbr[let/cc] does not impose a barrier, but procedure @nbr[test-report] does.
 
-@section[#:tag "Make a check procedure"]{Make a check procedure}
+@section[#:tag "Make check procedure"]{Make check procedure}
 
 One can adapt tests by supplying ones own @(italic (tt "check-procedure")) to macro @nbr[test].
 Such a @(italic (tt "check-procedure")) must accept arguments as described for procedure
@@ -811,7 +809,7 @@ Test on real numbers, possibly inexact.
   (test name (computed) (list expect)
    #:check (λ args (apply inexact-check-procedure δ args)))))
 (code:comment " ")
-(code:comment #,(black "Notice the extra argument " (tt "delta")))
+(code:comment #,(black "Notice the additional argument " (tt "delta")))
 (code:comment " ")
 (define (inexact-check-procedure
          delta
