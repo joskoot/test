@@ -60,7 +60,7 @@
 @(define ttblack   (make-ttcolor-style "black"))
 @(define ttred     (make-ttcolor-style "red"))
 @(define ttgreen   (make-ttcolor-style "green"))
-@(define optional "evaluated, optional, default: ")
+@(define optional "optional, evaluated, default: ")
 @(define opt-proc "optional, default: ")
 @(define (excn)
          (seclink "exn-model" #:doc '(lib "scribblings/reference/reference.scrbl") "exception"))
@@ -105,9 +105,9 @@ comparison of computed results with expected ones.
 #:sep (hspace 1) #:row-properties (make-list 7 'top))
 
 @defform[#:kind @seclink["macros" #:doc '(lib "scribblings/guide/guide.scrbl")]{macro}
- (test #,(roman " ")   name            #,(roman "evaluated")
-           (expr ...)      #,(roman "not evaluated")
-           expected-values #,(roman "evaluated")
+ (test #,(roman " ")   name            #,(roman "required, evaluated")
+           (expr ...)      #,(roman "required, not evaluated")
+           expected-values #,(roman "required, evaluated")
   #:output expected-output #,(roman optional (nbr #f))
   #:error  expected-error  #,(roman optional (nbr #f))
   #:exn    exn-expected?   #,(roman optional (elemref "default-exn" "see below"))
@@ -187,7 +187,7 @@ are checked to satisfy their contracts.
           @nb{It is called} by procedure @nbr[test-report] after running a test.
           Section ‘@secref["Make check procedure"]’
           shows two examples of how to prepare your own @nbr[check-procedure].}))
- #:sep (hspace 1)
+ #:sep (hspace 2)
  #:row-properties '(top top top top top)]
 
 When tests are @nbrl[test-enable "enabled"] the test is saved for procedure @(nbr test-report).
@@ -397,7 +397,7 @@ is caught and reported as error with the @nbrl[exn-message]{message}:
 (code:comment " ")
 (code:comment #,(black (seclink "parameters"
                                 #:doc '(lib "scribblings/reference/reference.scrbl")
-                                "Parameters") " are restored."))
+                                "Parameters") " are restored (not realy, but it seems like so)"))
 (code:comment " ")
 (define p (make-parameter 0))
 (test 32 ((p 1) (p)) '(1))
@@ -708,7 +708,7 @@ Do you understand the following puzzle?
 
 It may be easy to predict that an error will be raised,
 but it may be difficult to predict the exact message.
-In that case macro @nbr[test] can be used, for example:
+In that case macro @nbr[test] can be helpfull, for example:
 
 @Interaction[
 (define cop (current-output-port))
