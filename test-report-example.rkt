@@ -1,5 +1,5 @@
 #lang racket
-(require "test.rkt")
+(require test/test)
 (test 'ok1   (1)             '(1))
 (test 'fail1 (1)             '(2))
 (test 'ok2   ((write 'foo))  #f     #:output "foo")
