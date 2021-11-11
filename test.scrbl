@@ -71,7 +71,7 @@
 
 @title[#:version ""]{A tool for testing}
 @author{Jacob J. A. Koot}
-@(defmodule "test.rkt" #:packages ())
+@(defmodule test/test #:packages ())
 
 @section{Test and companions}
 
@@ -80,7 +80,7 @@ comparison of computed results with expected ones.
 
 @(Tabular
 (("•" @roman{Checks computed values, @seclink["values-model"
-             #:doc '(lib "scribblings/reference/reference.scrbl")]{multiple values} included.})
+             #:doc '(lib "scribblings/reference/reference.scrbl")]{multiple return values} included.})
  ("•" @roman{@seclink["parameter-model"
                       #:doc '(lib "scribblings/reference/reference.scrbl")]{Parameterizes}
              the @nbrl[current-output-port]{current output}
@@ -137,7 +137,7 @@ in this order. The optional keyword arguments can follow in arbitrary order.
 @(test-arg) is the test proper and is not yet evaluated. All other arguments are evaluated
 in the order as they appear in the @nbr[test]-call and
 are checked to satisfy their contracts.
-@nb{The test is} saved for procedure @nbr[test-report], which will evaluate each @nbr[expr].
+@nb{The test is} saved for procedure @nbr[test-report], which will evaluate the @nbr[expr]s.
 @nb{The @nbr[test]-form returns @seclink["void" #:doc '(lib "scribblings/reference/reference.scrbl")
                                          (tt "#<void>")]}.
 
@@ -149,19 +149,22 @@ are checked to satisfy their contracts.
           within the @seclink["id-model" #:doc '(lib "scribblings/reference/reference.scrbl")]{scope}
           in which the @nbr[test]-form is located,
           not necessarily at top level.
-          The thunk will be called in a
+          The thunk will be called as a
           @seclink["threads" #:doc '(lib "scribblings/reference/reference.scrbl")]{thread}
           started by procedure @(racket test-report).})
   ((nbr expected-values)
    @roman{List of the expected values of @(test-block), possibly empty.@(lb)
-          @nbr[#f] is short for @(nbr (list (void))).
-          When @nbr[test-check] is given for argument @nbr[check-procedure],
+          @nbr[#f] is short for @(nbr (list (void))),
+          indicating that the single value
+          @seclink["void" #:doc '(lib "scribblings/reference/reference.scrbl")
+                   (tt "#<void>")] is expected.
+          When @nbr[test-check] is given for the @nbr[check-procedure],
           computed and expected values are compared with each other with procedure
           @nbr[test-compare?].})
   ((list (nbr expected-output) (lb) (nbr expected-error))
    @roman{Output expected on @(racket current-output-port) cq @racket[current-error-port].
           @nb{These arguments} are @nbrl[normalize-whitespace]{normalized for white@(-?)space}.
-          The computed output and error produced by the test
+          The computed output and error
           will be normalized too before comparison with the expected output and error.})
   ((nbr exn-expected?) (elemtag "default-exn" 
    @roman{@nbr[#f] indicates that no @(excn) is expected.
@@ -174,12 +177,11 @@ are checked to satisfy their contracts.
           When the test is expected to raise an @(excn) without producing non-white error output,
           the appropriate value is @nbr[#t].}))
   ((nbr time-limit)
-   @roman{Imposes a time limit on the test in milliseconds.
-          Time spent on garbage collection is included.
+   @roman{Imposes a real-time limit on the test in milliseconds.
           @(nbr +inf.0) is taken as @(nbr #f), which means no time limit.
-          Exceeding the @nbr[time-limit] raises an error
-         (which can be supplied as an @nbr[expected-error]).
-         See parameter @(nbr test-time).})
+          Exceeding the @nbr[time-limit] raises an error,
+          which can be an @nbr[expected-error].
+          See parameter @(nbr test-time).})
   ((nbr cg?)
    @roman{Coerced to @nbr[(and time-limit cg? #t)]. If true,
           @nbrl[collect-garbage]{garbage} is collected before the test is executed
@@ -187,7 +189,7 @@ are checked to satisfy their contracts.
   ((nbr check-procedure)
    @roman{Procedure that is assumed to check the results of a test.
           @nb{The default is} @nbr[test-check].
-          @nb{It is called} by procedure @nbr[test-report] after running a test.
+          @nb{The @nbr[check-procedure]} is called by @nbr[test-report] after running a test.
           Section ‘@secref["Make check procedure"]’
           shows two examples of how to prepare your own @nbr[check-procedure].}))
  #:sep (hspace 2)
@@ -233,7 +235,7 @@ the @nbr[exn-message] is @nbrl[display]{displayed} on the
 in@(-?)de@(-?)pend@(-?)ent@(-?)ly of
 @seclink["parameterize" #:doc '(lib "scribblings/guide/guide.scrbl") "parameterization"]
 of the @nbr[current-error-port] within @(test-arg).
-The displayed @nbr[exn-message] does not include @nbrl[srcloc]{source information}
+The displayed @nbr[exn-message] does not include @nbrl[srcloc]{source information},
 which makes it easier to provide a matching @nbr[expected-error]
 (see section @secref["Predict error messages"]).
 When procedure @nbr[test-check] reports a failure,
@@ -241,22 +243,18 @@ source information of the test is shown, though,
 but not in the @nbr[exn-message].
 Every @nbrl[raise]{raised} value other than an @nbrl[exn?]{exception} is treated like an @(excn)
 and displayed on the @elemref["error-string-port"]{@italic{error-string-port}}.
-Procedure @nbr[test-report] can always be halted by a break or kill.
 
 There is a double sided continuation-barrier around the dynamic extent of a test.
 @(test-thunk) is wrapped such that an exit from its dynamic content other than to the continuation
-of the block is caught and reported as an error with the @nbrl[exn-message]{message}:
-
-@inset{@(nb (green (tt "continuation application: jump out of dynamic extent of test")))}
-
+of the block is caught and reported as an error with the @nbrl[exn-message]{message}:@(lb)@(hspace 3)
+@(nb (red (italic (tt "continuation application: jump out of dynamic extent of test"))))@(lb)
 An attempt to enter a continuation into the block from outside its dynamic extent
-is caught and reported as error with the @nbrl[exn-message]{message}:
+is caught and reported as error with the @nbrl[exn-message]{message}:@(lb)@(hspace 3)
+@(nb (red (italic (tt "continuation application: attempt to cross a continuation barrier"))))
 
-@inset{@nb{@green{@tt{continuation application: attempt to cross a continuation barrier}}}}
+Examples: all of the following tests pass:
 
 @Interaction[
-(code:comment #,(black "Examples: all of the following tests will pass."))
-(code:comment " ")
 (test 1 (1) '(1))
 (test 2 () #f)
 (test 3 ((write (list 1 2 3))) #f #:output "(1 2 3)")
@@ -273,7 +271,7 @@ is caught and reported as error with the @nbrl[exn-message]{message}:
 (test 8 ((values 1 2 3)) '(1 2 3))
 (test 9 ((values)) '())
 (test 10 () #f)
-(test 11 ((display "")) #f #:output #f)
+(test 11 ((display "  ")) #f #:output #f)
 (code:comment " ")
 (code:comment #,(black
   "A test can refer to a variable yet to be defined, but the variable must be defined"))
@@ -301,13 +299,13 @@ is caught and reported as error with the @nbrl[exn-message]{message}:
           (my-let a 10 (add1 a)))
          '(11))
 (code:comment " ")
-(code:comment #,(black "Circular references are compared correctly."))
+(code:comment #,(black "Data containing cycles in their graph structure are compared correctly."))
 (code:comment #,(black "They do not give rise to an infinite loop."))
 (code:comment #,(black "Below the strings in computed and expected values differ in their"))
 (code:comment #,(black "whitespace, but nevertheless are accepted as matching each other."))
 (code:comment " ")
 (define (make-list-example str)
- (let ((a (mcons 1 str))) (set-mcar! a a) a))
+ (let ((a (mcons 1 str))) (set-mcar! a (box a)) a))
 (let ((p (make-list-example  "abc"))
       (q (make-list-example " abc ")))
  (test 16 (p) (list q))
@@ -364,8 +362,6 @@ is caught and reported as error with the @nbrl[exn-message]{message}:
        #f #:output "10 9 8 7 6 5 4 3 2 1 0 end"))
 (code:comment " ")
 (code:comment #,(black "Attempts to cross the double sided continuation barrier."))
-(code:comment #,(black "Notice that the thunk resulting from test 26 will not be"))
-(code:comment #,(black "called from within the " (nbr let/cc) " form."))
 (code:comment " ")
 (let/cc cc
  (test 26 ((cc 123)) '()
@@ -401,10 +397,11 @@ is caught and reported as error with the @nbrl[exn-message]{message}:
          #:error "Not raising an error."
          #:exn #f)
 (code:comment " ")
-(code:comment #,(black (seclink "parameters"
+(code:comment #,(black "A test does not affect "
+                       (seclink "parameters"
                                 #:doc '(lib "scribblings/reference/reference.scrbl")
-                                "Parameters")
-                       " are restored (not realy, but it seems like so)"))
+                                "parameters")
+                       " of the calling program."))
 (code:comment " ")
 (define p (make-parameter 0))
 (test 32 ((p 1) (p)) '(1))
@@ -479,7 +476,8 @@ In all other respects same as:
 
 @defproc[(test-report) void?]{
 
-Runs all gathered @nbrl[test "tests"] and reports details about all failing tests on the
+Runs all @nbrl[test "tests"] in the order they were gathered
+and reports details about all failing tests on the
 @racket[current-output-port]. The list of gathered tests is cleared.
 In order to show source information the follow@(-?)ing example is read from a separate file.
 A copy of the imported module is included.
@@ -510,7 +508,8 @@ This is the default for argument @(italic (tt "check-procedure")) of macro @nbr[
 Procedure @nbr[test-report] processes the recorded tests.
 For each test it runs a
 @seclink["threads" #:doc '(lib "scribblings/reference/reference.scrbl")]{thread}
-with the associated thunk and subsequently the @(italic (tt "check-procedure")) with the results.
+with the associated thunk and subsequently calls
+the @(italic (tt "check-procedure")) with the results.
 
 The @nbr[name], @nbr[exprs], @nbr[expected-values], @nbr[expected-output] and @racket[expected-error]
 are those given to and as @nbrl[normalize-whitespace]{normalized}
@@ -518,7 +517,8 @@ for white@(-?)space by macro @nbr[test].
 
 The @nbr[computed-output] and @nbr[computed-error] are strings collected from the
 @elemref["output-string-port"]{@italic{output-string-port}} and the 
-@elemref["error-string-port"]{@italic{error-string-port}}. They are normalized
+@elemref["error-string-port"]{@italic{error-string-port}}.
+They are @nbrl[normalize-whitespace]{normalized}
 for white@(-?)space in the same way as the @nbr[expected-output] and the @nbr[expected-error]
 are normalized by macro @nbr[test].
 
@@ -577,20 +577,21 @@ counter]}
 @defproc[(test-clear) void?]{
 Clears the list of tests gathered by macro @nbr[test].}
 
-@defproc[(test-list) (list/c
-                      (cons/c 'name            any/c)
-                      (cons/c 'exprs           (listof any/c))
-                      (cons/c 'thunk           (-> any))
-                      (cons/c 'source          (or/c path? 'unknown))
-                      (cons/c 'line            exact-positive-integer?)
-                      (cons/c 'column          exact-nonnegative-integer?)
-                      (cons/c 'expected-values (listof any/c))
-                      (cons/c 'expected-output (or/c non-empty-string? #f))
-                      (cons/c 'expected-error  (or/c non-empty-string? #f))
-                      (cons/c 'exn-expected?   boolean?)
-                      (cons/c 'time-limit      (or/c #f (>/c 0)))
-                      (cons/c 'cg?             boolean?)
-                      (cons/c 'check-procedure (procedure-arity-includes/c 14)))]{
+@defproc[(test-list) (listof
+                      (list/c
+                       (cons/c 'name            any/c)
+                       (cons/c 'exprs           (listof any/c))
+                       (cons/c 'thunk           (-> any))
+                       (cons/c 'source          (or/c path? 'unknown))
+                       (cons/c 'line            exact-positive-integer?)
+                       (cons/c 'column          exact-nonnegative-integer?)
+                       (cons/c 'expected-values (listof any/c))
+                       (cons/c 'expected-output (or/c non-empty-string? #f))
+                       (cons/c 'expected-error  (or/c non-empty-string? #f))
+                       (cons/c 'exn-expected?   boolean?)
+                       (cons/c 'time-limit      (or/c #f (>/c 0)))
+                       (cons/c 'cg?             boolean?)
+                       (cons/c 'check-procedure (procedure-arity-includes/c 14))))]{
 
 Returns the gathered tests as a list of
 @seclink["dicts" #:doc '(lib "scribblings/reference/reference.scrbl")]{association lists}
@@ -606,21 +607,16 @@ with symbols for the keys:
  ((nbtt "column") "Column in this line.")
  ((nbtt "expected-values") "The list of expected values.")
  ((nbtt "expected-output") @roman{The expected output to the @(racket current-output-port)
-              or @(nbr #f) when@(lb)
-              no such output is expected or consists of white@(-?)space only.})
+                                  or @(nbr #f).})
  ((nbtt "expected-error") @roman{The expected output to the @(nbr current-error-port)
-              or @(nbr #f) when@(lb)
-              no such output is expected or consists of white@(-?)space only.})
- ((nbtt "exn-expected?") (list "True or false indicating whether or not an " (excn) " is expected."))
+                                 or @(nbr #f).})
+ ((nbtt "exn-expected?") (list "Indicates whether or not an " (excn) " is expected."))
  ((nbtt "time-limit") "Time-limit in milliseconds imposed on the test.")
- ((nbtt "cg?") @roman{When @nbr[#t] garbage is collected before the
-   test is executed.})
- ((nbtt "check-procedure") @roman{Procedure that is supposed to check the results of the test.
-   The default @nbr[check-procedure] is @nbr[test-check],
-   which is described @nbrl[test-check "above"].}))
- #:sep (hspace 3)
+ ((nbtt "cg?") @roman{When @nbr[#t] garbage is collected before the test is executed.})
+ ((nbtt "check-procedure") @roman{Procedure that is supposed to check the results of the test.}))
+ #:sep (hspace 2)
  #:column-properties '(left left)
- #:row-properties (cons '(top bottom-border) (make-list 11 'top))]
+ #:row-properties `((top top-border bottom-border) ,@(make-list 12 'top) (top bottom-border))]
 
 The thunk yields the values to be checked against the expected values.
 It is not protected and has no continuation barriers.
@@ -661,7 +657,18 @@ If a list of strings is given, they are concatenated with a separating space bet
 pair of adjacent elements. The resulting string is normalized as follows.
 If the @nbr[arg] is a string, heading and trailing white@(-?)space is removed and every other
 sequence of contiguous white@(-?)space is replaced by one single space.
-The resulting string is returned, except when it is empty, in which case @nbr[#f] is returned.}
+The resulting string is returned, except when it is empty, in which case @nbr[#f] is returned.
+
+Examples:
+
+@Interaction[
+(normalize-whitespace '())
+(normalize-whitespace "")
+(normalize-whitespace (make-list 10 "  "))
+(normalize-whitespace "  a  b  c  ")
+(normalize-whitespace '(" a " " b " " c "))
+(code:comment #,(black "Null is not whitespace."))
+(normalize-whitespace "   \u0   ")]}
 
 @defproc[(test-compare? (value-1 any/c) (value-2 any/c)) boolean?]{
 
@@ -886,7 +893,7 @@ Test on real numbers, possibly inexact.
 (test-inexact "sin(180°)"             (sin    pi   ) 0    1e-10)
 (test-inexact "cos( 90°)"             (cos (/ pi 2)) 0    1e-10)
 (test-inexact "cos( 60°)"             (cos (/ pi 3)) 1/2  1e-10)
-(test-inexact "‹inaccurate sin(30°)›" (sin (/ pi 6)) 1/2  1e-17)
+(test-inexact "‹inaccurate sin(30°)›" (sin (/ pi 6)) 1/2  #e1e-17)
 (test-inexact "‹raises error›"        (atan 0+1i)    0    +inf.0)
 (test-inexact "not a real"            'a             0    +inf.0)
 (test-inexact "multiple value"        (values 1 2 3) 0    +inf.0)
