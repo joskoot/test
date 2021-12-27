@@ -72,6 +72,7 @@
 @title[#:version ""]{A tool for testing}
 @author{Jacob J. A. Koot}
 @(defmodule test/test #:packages ())
+@;@(defmodule "test.rkt" #:packages ())
 
 @section{Test and companions}
 
@@ -479,13 +480,22 @@ In all other respects same as:
 Runs all @nbrl[test "tests"] in the order they were gathered
 and reports details about all failing tests on the
 @racket[current-output-port]. The list of gathered tests is cleared.
-In order to show source information the follow@(-?)ing example is read from a separate file.
-A copy of the imported module is included.
 
 @Interaction[
-(call-with-input-file "test-report-example.rkt"
- (λ (input) (copy-port input (current-output-port))))
-(dynamic-require "test-report-example.rkt" #f)]}
+(module test racket
+ (require test/test)
+ (test 'ok1   (1)             '(1))
+ (test 'fail1 (1)             '(2))
+ (test 'ok2   ((write 'foo))  #f     #:output "foo")
+ (test 'fail2 ((write 'foo))  '(foo) #:output "baz")
+ (test 'ok3   ((raise 'bar))  '()    #:output #f    #:error "bar")
+ (test 'fail3 ((error "bar")) #f     #:output "bar" #:error "oof")
+ (test 'ok4   ((raise 123))   '()                   #:error "123")
+ (test 'fail4 ((raise ""))    '()    #:exn    #f    #:error #f)
+ (test 'ok5   ((eprintf "1")) #f     #:exn    #f    #:error "1")
+ (test 'fail5 ((eprintf "1")) #f                    #:error "1")
+ (test-report) (λ (input) (copy-port input (current-output-port))))
+(require 'test)]}
 
 @defproc[(test-check
           (name            #,(tt (hspace 11) (nbr any/c)))
