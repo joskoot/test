@@ -494,7 +494,7 @@ and reports details about all failing tests on the
  (test 'fail4 ((raise ""))    '()    #:exn    #f    #:error #f)
  (test 'ok5   ((eprintf "1")) #f     #:exn    #f    #:error "1")
  (test 'fail5 ((eprintf "1")) #f                    #:error "1")
- (test-report) (λ (input) (copy-port input (current-output-port))))
+ (test-report))
 (require 'test)]}
 
 @defproc[(test-check
