@@ -570,7 +570,12 @@ is tested with procedure @nbr[test-compare?].
 (printing-test 'a ((add1 3)) '(4))
 (printing-test 'b ((sub1 3)) '(2))
 (printing-test 'c (1) '(2))
-(printing-test 'd ((values 1 2 3)) '(1 2 3))
+(printing-test 'd
+ ((define a 1)
+  (define b 2)
+  (define c 3)
+  (values 1 2 3))
+ '(1 2 3))
 (code:line)
 (test-report)
 ]}
