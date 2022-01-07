@@ -555,7 +555,7 @@ is tested with procedure @nbr[test-compare?].
           port source line column)
  (fprintf port " ~nname  : ~s~n" name)
  (for-each (λ (x) (fprintf port "expr  : ~s~n" x)) exprs)
- (for-each (λ (x) (fprintf port"expect: ~s~n" x)) expected)
+ (for-each (λ (x) (fprintf port"expect: ~s~n" x)) expected-values)
  (test-check name exprs
              expected-values computed-values
              expected-output computed-output
