@@ -552,16 +552,16 @@ is tested with procedure @nbr[test-compare?].
           expected-output computed-output
           expected-error  computed-error
           exn-expected? exn-raised?
-          port source line column)
- (fprintf port " ~nname  : ~s~n" name)
- (for-each (λ (x) (fprintf port "expr  : ~s~n" x)) exprs)
- (for-each (λ (x) (fprintf port"expect: ~s~n" x)) expected-values)
+          report-port source line column)
+ (fprintf report-port " ~nname  : ~s~n" name)
+ (for-each (λ (x) (fprintf report-port "expr  : ~s~n" x)) exprs)
+ (for-each (λ (x) (fprintf report-port "expect: ~s~n" x)) expected-values)
  (test-check name exprs
              expected-values computed-values
              expected-output computed-output
              expected-error  computed-error
              exn-expected? exn-raised?
-             port source line column))
+             report-port source line column))
 (code:line)
 (define-syntax-rule
  (printing-test x ...)
