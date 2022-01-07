@@ -574,7 +574,7 @@ is tested with procedure @nbr[test-compare?].
  ((define a 1)
   (define b 2)
   (define c 3)
-  (values a b c)
+  (values a b c))
  '(1 2 3))
 (code:line)
 (test-report)
