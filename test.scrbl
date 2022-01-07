@@ -547,27 +547,21 @@ is tested with procedure @nbr[test-compare?].
 
 @Interaction[
 (define
- (tstchck name
-          exprs
+ (tstchck name exprs
           expected computed-values
           output computed-output
           error  computed-error
-          exn-expected?
-          exn-raised?
-          port
-          source line column)
+          exn-expected? exn-raised?
+          port source line column)
  (fprintf port " ~nname  : ~s~n" name)
  (for-each (λ (x) (fprintf port "expr  : ~s~n" x)) exprs)
  (for-each (λ (x) (fprintf port"expect: ~s~n" x)) expected)
- (test-check name
-             exprs
+ (test-check name exprs
              expected computed-values
              output computed-output
              error  computed-error
-             exn-expected?
-             exn-raised?
-             port
-             source line column))
+             exn-expected? exn-raised?
+             port source line column))
 (code:line)
 (define-syntax-rule
  (printing-test x ...)
