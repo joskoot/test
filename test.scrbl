@@ -546,19 +546,37 @@ Equality of @nbr[computed-values] and @nbr[expected-values]
 is tested with procedure @nbr[test-compare?].
 
 @Interaction[
-(define (tstchck name exprs expected . rest)
- (printf "name  : ~s~n" name)
- (for-each (λ (x) (printf "expr  : ~s~n" x)) exprs)
- (for-each (λ (x) (printf "expect: ~s~n" x)) expected)
- (apply test-check name exprs expected rest))
+(define
+ (tstchck name
+          exprs
+          expected computed-values
+          output computed-output
+          error  computed-error
+          exn-expected?
+          exn-raised?
+          port
+          source line column)
+ (fprintf port "~nname  : ~s~n" name)
+ (for-each (λ (x) (fprintf port "expr  : ~s~n" x)) exprs)
+ (for-each (λ (x) (fprintf port"expect: ~s~n" x)) expected)
+ (test-check name
+             exprs
+             expected computed-values
+             output computed-output
+             error  computed-error
+             exn-expected?
+             exn-raised?
+             port
+             source line column))
 (code:line)
-(define-syntax-rule (printing-test x ...) (test x ... #:check tstchck))
+(define-syntax-rule
+ (printing-test x ...)
+ (test x ... #:check tstchck))
 (code:line)
 (printing-test 'a ((add1 3)) '(4))
 (printing-test 'b ((sub1 3)) '(2))
 (printing-test 'c (1) '(2))
 (printing-test 'd ((values 1 2 3)) '(1 2 3))
-
 (code:line)
 (test-report)
 ]}
