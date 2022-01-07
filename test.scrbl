@@ -938,7 +938,7 @@ Test on real numbers, possibly inexact.
 (test-inexact "sin(180°)"             (sin    pi   ) 0    1e-10)
 (test-inexact "cos( 90°)"             (cos (/ pi 2)) 0    1e-10)
 (test-inexact "cos( 60°)"             (cos (/ pi 3)) 1/2  1e-10)
-(test-inexact "‹inaccurate sin(30°)›" (sin (/ pi 6)) 1/2  #e1e-17)
+(test-inexact "‹inaccurate sin(30°)›" (sin (/ pi 6)) 1/2  1e-17)
 (test-inexact "‹raises error›"        (atan 0+1i)    0    +inf.0)
 (test-inexact "not a real"            'a             0    +inf.0)
 (test-inexact "multiple value"        (values 1 2 3) 0    +inf.0)
