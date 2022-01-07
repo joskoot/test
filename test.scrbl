@@ -547,15 +547,16 @@ is tested with procedure @nbr[test-compare?].
 
 @Interaction[
 (define (tstchck name exprs expected . rest)
- (for-each (λ (x) (printf "expr: ~s~n" x)) exprs)
+ (printf "name  : ~s~n" name)
+ (for-each (λ (x) (printf "expr  : ~s~n" x)) exprs)
  (for-each (λ (x) (printf "expect: ~s~n" x)) expected)
  (apply test-check name exprs expected rest))
 (code:line)
 (define-syntax-rule (printing-test x ...) (test x ... #:check tstchck))
 (code:line)
 (printing-test 'a ((add1 3)) '(4))
-(printing-test 'a ((sub1 3)) '(2))
-(printing-test 'a ((values 1 2 3)) '(1 2 3))
+(printing-test 'b ((sub1 3)) '(2))
+(printing-test 'b ((values 1 2 3)) '(1 2 3))
 (code:line)
 (test-report)
 ]}
