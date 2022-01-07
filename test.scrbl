@@ -543,7 +543,22 @@ it writes details of unexpected results on the @racket[report-port] and returns 
 Procedure @nbr[test-report] gathers the reports of the failing tests from the
 @racket[report-port] and prints them after all tests have been executed.
 Equality of @nbr[computed-values] and @nbr[expected-values]
-is tested with procedure @nbr[test-compare?].}
+is tested with procedure @nbr[test-compare?].
+
+@Interaction[
+(define (tstchck name exprs expected . rest)
+ (for-each (λ (x) (printf "expr: ~s~n" x)) exprs)
+ (for-each (λ (x) (printf "expect: ~s~n" x)) expected)
+ (apply test-check name exprs expected rest))
+(code:line)
+(define-syntax-rule (printing-test x ...) (test x ... #:check tstchck))
+(code:line)
+(printing-test 'a ((add1 3)) '(4))
+(printing-test 'a ((sub1 3)) '(2))
+(printing-test 'a ((values 1 2 3)) '(1 2 3))
+(code:line)
+(test-report)
+]}
 
 @defparam*[test-enable on/off any/c boolean? #:value #t]{
 
