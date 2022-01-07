@@ -548,18 +548,18 @@ is tested with procedure @nbr[test-compare?].
 @Interaction[
 (define
  (tstchck name exprs
-          expected computed-values
-          output computed-output
-          error  computed-error
+          expected-values computed-values
+          expected-output computed-output
+          expected-error  computed-error
           exn-expected? exn-raised?
           port source line column)
  (fprintf port " ~nname  : ~s~n" name)
  (for-each (λ (x) (fprintf port "expr  : ~s~n" x)) exprs)
  (for-each (λ (x) (fprintf port"expect: ~s~n" x)) expected)
  (test-check name exprs
-             expected computed-values
-             output computed-output
-             error  computed-error
+             expected-values computed-values
+             expected-output computed-output
+             expected-error  computed-error
              exn-expected? exn-raised?
              port source line column))
 (code:line)
