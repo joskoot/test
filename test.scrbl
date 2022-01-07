@@ -556,7 +556,7 @@ is tested with procedure @nbr[test-compare?].
           exn-raised?
           port
           source line column)
- (fprintf port "~nname  : ~s~n" name)
+ (fprintf port " ~nname  : ~s~n" name)
  (for-each (λ (x) (fprintf port "expr  : ~s~n" x)) exprs)
  (for-each (λ (x) (fprintf port"expect: ~s~n" x)) expected)
  (test-check name
