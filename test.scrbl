@@ -556,7 +556,8 @@ is tested with procedure @nbr[test-compare?].
 (code:line)
 (printing-test 'a ((add1 3)) '(4))
 (printing-test 'b ((sub1 3)) '(2))
-(printing-test 'b ((values 1 2 3)) '(1 2 3))
+(printing-test 'c ((values 1 2 3)) '(1 2 3))
+(printing-test 'd (1) '(2))
 (code:line)
 (test-report)
 ]}
