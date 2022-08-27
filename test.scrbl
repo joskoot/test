@@ -162,7 +162,7 @@ are checked to satisfy their contracts.
           When @nbr[test-check] is given for the @nbr[check-procedure],
           computed and expected values are compared with each other with procedure
           @nbr[test-compare?].})
-  ((list (nbr expected-output) (lb) (nbr expected-error))
+  ((list (nbr expected-output) (lb)(lb) (nbr expected-error))
    @roman{Output expected on @(racket current-output-port) cq @racket[current-error-port].
           @nb{These arguments} are @nbrl[normalize-whitespace]{normalized for white@(-?)space}.
           The computed output and error
