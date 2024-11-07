@@ -107,7 +107,7 @@ comparison of computed results with expected ones.
              around each test.}))
 #:sep (hspace 1) #:row-properties (make-list 7 'top))
 
-@defform[#:kind @seclink["macros" #:doc '(lib "scribblings/guide/guide.scrbl")]{macro}
+@defform[
  (test #,(roman " ")   name            #,(roman "required, evaluated")
            (expr ...)      #,(roman "required, not evaluated")
            expected-values #,(roman "required, evaluated")
